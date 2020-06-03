@@ -1,0 +1,17 @@
+[package]
+name = "luminance_test"
+version = "0.1.0"
+authors = ["ThePerkinrex <theperkinrex@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+luminance = "0.39"
+luminance-glfw = "0.12"
+luminance-derive = "0.5"
+image = "0.23.4"
+ron = "0.6.0"
+serde = "1.0.111"
+lazy_static = "1.4.0"
+freetype-rs = "0.26.0" # Look at crates.io instructions for installing freetype2 on windows

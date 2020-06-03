@@ -1,0 +1,47 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'luminance_test'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=luminance_test",
+					"--package=luminance_test"
+				],
+				"filter": {
+					"name": "luminance_test",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}",
+            "sourceLanguages": ["rust"]
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'luminance_test'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=luminance_test",
+					"--package=luminance_test"
+				],
+				"filter": {
+					"name": "luminance_test",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}",
+            "sourceLanguages": ["rust"]
+		}
+	]
+}
