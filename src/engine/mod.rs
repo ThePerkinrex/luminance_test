@@ -4,14 +4,21 @@ use lazy_static::lazy_static;
 
 use std::path::Path;
 
-mod utils;
-pub mod text;
+// RENDERING MODULES
 pub mod hud;
+pub mod spacial;
+
+// Public mods
+pub mod text;
+pub mod texture;
+
+// Private mods
+mod utils;
+
+// Mods to re-export
 mod entity_registry;
 
 pub use entity_registry::EntityRegistry;
-
-pub mod texture;
 
 lazy_static! {
 	pub static ref ASSETS_PATH: &'static Path = Path::new("assets");
