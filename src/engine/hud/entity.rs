@@ -148,22 +148,25 @@ impl Entity {
 		s: String,
 		font: &Font,
 	) -> Option<Self> {
-		if let Some((tex, uvs)) = tex_from_string(surface, s.clone(), font) {
+		if let Some((tex, uvs, line_height)) = tex_from_string(surface, s.clone(), font) {
 			let [width, height] = tex.size();
 			return Some(Self::new_from_tex(
 				surface,
 				&[
-					Vertex::new(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
 					Vertex::new(
-						VertexPosition::new([width as i32, 0]),
+						VertexPosition::new([0, -line_height]),
+						VertexUV::new(uvs[0]),
+					),
+					Vertex::new(
+						VertexPosition::new([width as i32, -line_height]),
 						VertexUV::new(uvs[1]),
 					),
 					Vertex::new(
-						VertexPosition::new([width as i32, height as i32]),
+						VertexPosition::new([width as i32, height as i32 - line_height]),
 						VertexUV::new(uvs[2]),
 					),
 					Vertex::new(
-						VertexPosition::new([0, height as i32]),
+						VertexPosition::new([0, height as i32 - line_height]),
 						VertexUV::new(uvs[3]),
 					),
 				],
@@ -247,28 +250,34 @@ impl Entity {
 		text: &T,
 		font: &Font,
 	) -> Result<(), ()> {
-		if let Some((tex, uvs)) = tex_from_string(surface, text.to_string(), font) {
-			let [width, height] = tex.size();
-			self.tex_size = tex.size();
-			self.tex = tex;
-			self.update(&[
-				(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
-				(
-					VertexPosition::new([width as i32, 0]),
-					VertexUV::new(uvs[1]),
-				),
-				(
-					VertexPosition::new([width as i32, height as i32]),
-					VertexUV::new(uvs[2]),
-				),
-				(
-					VertexPosition::new([0, height as i32]),
-					VertexUV::new(uvs[3]),
-				),
-			]);
-			return Ok(())
-		} else {
-			eprintln!("Error creating texture for string \"{}\"", text.to_string())
+		if let EntityKind::Text = self.kind {
+			if let Some((tex, uvs, line_height)) = tex_from_string(surface, text.to_string(), font)
+			{
+				let [width, height] = tex.size();
+				self.tex_size = tex.size();
+				self.tex = tex;
+				self.update(&[
+					(
+						VertexPosition::new([0, -line_height]),
+						VertexUV::new(uvs[0]),
+					),
+					(
+						VertexPosition::new([width as i32, -line_height]),
+						VertexUV::new(uvs[1]),
+					),
+					(
+						VertexPosition::new([width as i32, height as i32 - line_height]),
+						VertexUV::new(uvs[2]),
+					),
+					(
+						VertexPosition::new([0, height as i32 - line_height]),
+						VertexUV::new(uvs[3]),
+					),
+				]);
+				return Ok(());
+			} else {
+				eprintln!("Error creating texture for string \"{}\"", text.to_string())
+			}
 		}
 		Err(())
 	}

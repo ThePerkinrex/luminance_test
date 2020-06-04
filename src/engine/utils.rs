@@ -1,5 +1,5 @@
 use luminance::context::GraphicsContext;
-use luminance::pixel::{NormRGBA8UI};
+use luminance::pixel::NormRGBA8UI;
 use luminance::texture::{Dim2, GenMipmaps, Sampler, Texture};
 
 use image;
@@ -28,4 +28,35 @@ pub fn load_from_disk<C: GraphicsContext>(
 	tex.upload_raw(GenMipmaps::No, &texels).unwrap();
 
 	tex
+}
+
+#[derive(Clone, Copy)]
+pub struct RgbaColor {
+	pub r: u8,
+	pub g: u8,
+	pub b: u8,
+	pub a: u8,
+}
+
+impl RgbaColor {
+	pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+		Self { r, g, b, a }
+	}
+
+	#[allow(dead_code)]
+	pub fn array(&self) -> [u8; 4] {
+		[self.r, self.g, self.b, self.a]
+	}
+}
+
+impl std::fmt::Debug for RgbaColor {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		write!(f, "RGBA({}, {}, {}, {})", self.r, self.g, self.b, self.a)
+	}
+}
+
+impl std::fmt::Display for RgbaColor {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		write!(f, "{:?}", self)
+	}
 }

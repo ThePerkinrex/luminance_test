@@ -47,7 +47,8 @@ fn main_loop(mut surface: GlfwSurface) {
 		engine::hud::VertexPosition::new([0, 200]),
 	], &[0,1,2, 0,2,3], Path::new("texture.ron")).expect("Error creeating entity");
 
-	let font = engine::text::Font::new("Roboto", engine::text::FontWeight::Thin, engine::text::FontStyle::Regular, 40);
+	let mut font = engine::text::Font::new("Roboto", engine::text::FontWeight::Black, engine::text::FontStyle::Regular, 20);
+	font.set_color(engine::RgbaColor::new(255,0,0,170));
 	let mut entity2 = engine::hud::Entity::new_entity_from_string(
 		&mut surface,
 		"Lies & deception".into(),

@@ -1,4 +1,4 @@
-use luminance_glfw::{Action, GlfwSurface, Key, Surface as _, WindowDim, WindowEvent, WindowOpt};
+use luminance_glfw::{Action, Key, WindowEvent};
 
 use std::collections::HashSet;
 
@@ -32,10 +32,6 @@ impl KeyRegistry {
 			},
 			_ => ()
 		};
-	}
-
-	pub fn is_key_pressed(&self, k: &Key) -> bool {
-		self.active_keys.contains(k)
 	}
 
 	pub fn for_pressed_keys<F>(&self, mut f: F) where F: FnMut(&Key) {

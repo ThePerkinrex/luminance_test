@@ -10,6 +10,7 @@ use std::cmp::{min, PartialEq};
 use std::path::Path;
 
 use super::ASSETS_PATH;
+use super::RgbaColor;
 
 lazy_static! {
 	static ref FONT: &'static Path = &Path::new("Roboto-Regular.ttf");
@@ -39,6 +40,7 @@ pub struct Font {
 	weight: FontWeight,
 	style: FontStyle,
 	size: u32,
+	color: RgbaColor,
 }
 
 impl Font {
@@ -48,7 +50,12 @@ impl Font {
 			weight,
 			style,
 			size,
+			color: RgbaColor::new(255, 255, 255, 255),
 		}
+	}
+
+	pub fn set_color(&mut self, color: RgbaColor) {
+		self.color = color
 	}
 
 	pub fn name(&self) -> String {
@@ -159,10 +166,10 @@ fn raw_glyph(c: char, font: Font) -> Option<(GlyphMetrics, Vec<u8>)> {
 			for i in 0..height {
 				for j in 0..width {
 					let val = map[i][j];
-					texels[i * width * 4 + j * 4 + 0] = 255; // R: This could be changed for the desired color
-					texels[i * width * 4 + j * 4 + 1] = 255; // G: This could be changed for the desired color
-					texels[i * width * 4 + j * 4 + 2] = 255; // B: This could be changed for the desired color
-					texels[i * width * 4 + j * 4 + 3] = val; // A: This could be multiplied times the alpha multiplier
+					texels[i * width * 4 + j * 4 + 0] = font.color.r; // R: This could be changed for the desired color
+					texels[i * width * 4 + j * 4 + 1] = font.color.g; // G: This could be changed for the desired color
+					texels[i * width * 4 + j * 4 + 2] = font.color.b; // B: This could be changed for the desired color
+					texels[i * width * 4 + j * 4 + 3] = (font.color.a as f64 / 255. * val as f64) as u8; // A: This could be multiplied times the alpha multiplier
 				}
 			}
 			// draw_map(map.clone(), metrics);
@@ -182,7 +189,7 @@ pub fn tex_from_string<'p, C: GraphicsContext>(
 	surface: &mut C,
 	s: String,
 	font: &Font,
-) -> Option<(Texture<Dim2, NormRGBA8UI>, [[u32; 2]; 4])> {
+) -> Option<(Texture<Dim2, NormRGBA8UI>, [[u32; 2]; 4], i32)> {
 	let mut max_top_height = 0_u32;
 	let mut max_bottom_height = 0_u32;
 	let mut max_width = 0_u32;
@@ -273,7 +280,7 @@ pub fn tex_from_string<'p, C: GraphicsContext>(
 			[width as u32, height as u32],
 			[width as u32, 0],
 			[0, 0],
-		]));
+		], max_bottom_height as i32));
 	} else {
 		eprintln!("Error initialising texture for string \"{}\"", s)
 	}
