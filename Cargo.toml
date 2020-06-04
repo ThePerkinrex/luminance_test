@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["ThePerkinrex <theperkinrex@gmail.com>"]
 edition = "2018"
 
+[target.x86_64-pc-windows-msvc.freetype]
+rustc-link-search = ["C:\\Path\\To\\binaries\\x86_64"] # CHANGE THIS WHEN ON WINDOWS
+rustc-link-lib = ["freetype"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
