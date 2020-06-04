@@ -40,7 +40,7 @@ fn main_loop(mut surface: GlfwSurface) {
 	let mut size = [X_DEFAULT_SIZE, Y_DEFAULT_SIZE];
 	let start_t = Instant::now();
 
-	let mut entity = engine::hud::Entity::load(&mut surface, &[
+	let entity = engine::hud::Entity::load(&mut surface, &[
 		engine::hud::VertexPosition::new([0, 0]),
 		engine::hud::VertexPosition::new([100, 0]),
 		engine::hud::VertexPosition::new([100, 200]),

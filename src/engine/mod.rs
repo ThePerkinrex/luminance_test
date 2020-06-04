@@ -1,4 +1,4 @@
-use luminance::context::GraphicsContext;
+// use luminance::context::GraphicsContext;
 
 use lazy_static::lazy_static;
 
@@ -17,13 +17,13 @@ lazy_static! {
 	pub static ref ASSETS_PATH: &'static Path = Path::new("assets");
 }
 
-pub trait Game {
-	fn init<C: GraphicsContext>(surface: C);
-	fn update<C: GraphicsContext>(surface: C);
-	fn render<C: GraphicsContext>(surface: C, tess_gate: luminance::pipeline::TessGate<'_, C>);
-}
+// pub trait Game {
+// 	fn init<C: GraphicsContext>(surface: C);
+// 	fn update<C: GraphicsContext>(surface: C);
+// 	fn render<C: GraphicsContext>(surface: C, tess_gate: luminance::pipeline::TessGate<'_, C>);
+// }
 
-pub struct GameEngine<C: GraphicsContext, G: Game> {
-	surface: C,
-	game: G,
-}
+// pub struct GameEngine<C: GraphicsContext, G: Game> {
+// 	surface: C,
+// 	game: G,
+// }

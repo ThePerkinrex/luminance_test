@@ -1,9 +1,8 @@
 use luminance::context::GraphicsContext;
-use luminance::pipeline::{Pipeline, ShadingGate, TessGate};
+use luminance::pipeline::{Pipeline, ShadingGate};
 use luminance::render_state::RenderState;
-use luminance::shader::program::{Program, UniformInterface, ProgramInterface};
+use luminance::shader::program::Program;
 use luminance::blending::{Equation, Factor};
-use luminance::vertex::Semantics;
 
 use std::cmp::Ordering;
 

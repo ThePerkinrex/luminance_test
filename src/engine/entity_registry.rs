@@ -4,6 +4,7 @@ pub struct EntityRegistry<E> {
 	entities: HashMap<String, E>,
 }
 
+#[allow(dead_code)]
 impl<E> EntityRegistry<E> {
 	pub fn new() -> Self {
 		Self {

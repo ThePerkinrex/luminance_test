@@ -26,6 +26,7 @@ pub struct Entity {
 	uv_states: Option<HashMap<String, Vec<VertexUV>>>, // ID: [VertexUV]
 }
 
+#[allow(dead_code)]
 impl Entity {
 	#[allow(dead_code)]
 	pub fn new<'p, C: GraphicsContext>(
