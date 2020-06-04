@@ -17,8 +17,10 @@ mod utils;
 
 // Mods to re-export
 mod entity_registry;
+mod key_registry;
 
 pub use entity_registry::EntityRegistry;
+pub use key_registry::KeyRegistry;
 
 lazy_static! {
 	pub static ref ASSETS_PATH: &'static Path = Path::new("assets");

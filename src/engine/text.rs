@@ -37,15 +37,17 @@ pub enum FontStyle {
 pub struct Font {
 	name: String,
 	weight: FontWeight,
-	style: FontStyle
+	style: FontStyle,
+	size: u32,
 }
 
 impl Font {
-	pub fn new<T: ToString>(name: T, weight: FontWeight, style: FontStyle) -> Self {
+	pub fn new<T: ToString>(name: T, weight: FontWeight, style: FontStyle, size: u32) -> Self {
 		Self {
 			name: name.to_string(),
 			weight,
-			style
+			style,
+			size,
 		}
 	}
 
@@ -100,7 +102,7 @@ fn raw_glyph(c: char, font: Font) -> Option<(GlyphMetrics, Vec<u8>)> {
 	if let Ok(library) = ft::Library::init() {
 		if let Ok(face) = library.new_face(ASSETS_PATH.join("fonts").join(font.name()), 0) {
 			// println!("FONT LOADED");
-			face.set_char_size(40 * 64, 0, 100, 0).expect("Error setting char size");
+			face.set_char_size(font.size as isize * 64, 0, font.size * 3, 0).expect("Error setting char size");
 			face.load_char(c as usize, ft::face::LoadFlag::RENDER)
 				.unwrap();
 			// println!("face LOADED");

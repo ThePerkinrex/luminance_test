@@ -47,7 +47,7 @@ fn main_loop(mut surface: GlfwSurface) {
 		engine::hud::VertexPosition::new([0, 200]),
 	], &[0,1,2, 0,2,3], Path::new("texture.ron")).expect("Error creeating entity");
 
-	let font = engine::text::Font::new("Roboto", engine::text::FontWeight::Thin, engine::text::FontStyle::Regular);
+	let font = engine::text::Font::new("Roboto", engine::text::FontWeight::Thin, engine::text::FontStyle::Regular, 40);
 	let mut entity2 = engine::hud::Entity::new_entity_from_string(
 		&mut surface,
 		"Lies & deception".into(),
@@ -69,38 +69,62 @@ fn main_loop(mut surface: GlfwSurface) {
 
 	let renderer = engine::hud::Renderer::new();
 
+	let mut key_registry = engine::KeyRegistry::new();
+
 	'app: loop {
 		let mut resized = false;
 		// handle events
 		for event in surface.poll_events() {
-			match event {
+			match &event {
 				WindowEvent::Close | WindowEvent::Key(Key::Escape, _, Action::Release, _) => {
 					break 'app
 				}
-				WindowEvent::Key(Key::W, _, Action::Press, _) => pos[1] += 10,
-				WindowEvent::Key(Key::S, _, Action::Press, _) => pos[1] -= 10,
-				WindowEvent::Key(Key::A, _, Action::Press, _) => pos[0] -= 10,
-				WindowEvent::Key(Key::D, _, Action::Press, _) => pos[0] += 10,
-				WindowEvent::Key(Key::W, _, Action::Repeat, _) => pos[1] += 10,
-				WindowEvent::Key(Key::S, _, Action::Repeat, _) => pos[1] -= 10,
-				WindowEvent::Key(Key::A, _, Action::Repeat, _) => pos[0] -= 10,
-				WindowEvent::Key(Key::D, _, Action::Repeat, _) => pos[0] += 10,
 				WindowEvent::Key(Key::K, _, Action::Press, _) => {
 					hud_registry.get_mut(&"Playeer").unwrap().set_state("2").expect("Error setting state");
 				}
 				WindowEvent::FramebufferSize(x, y) => {
-					size = [x as u32, y as u32];
+					size = [*x as u32, *y as u32];
 
 					resized = true;
 				}
 				_ => (),
 			}
+			key_registry.event(event);
 		}
+
+		// WindowEvent::Key(Key::W, _, Action::Press, _) => pos[1] += 10,
+		// WindowEvent::Key(Key::S, _, Action::Press, _) => pos[1] -= 10,
+		// WindowEvent::Key(Key::A, _, Action::Press, _) => pos[0] -= 10,
+		// WindowEvent::Key(Key::D, _, Action::Press, _) => pos[0] += 10,
+
+		// if key_registry.is_key_pressed(&Key::W) {
+		// 	pos[1] += 10
+		// }
+		// if key_registry.is_key_pressed(&Key::S) {
+		// 	pos[1] -= 10
+		// }
+		// if key_registry.is_key_pressed(&Key::A) {
+		// 	pos[0] -= 10
+		// }
+		// if key_registry.is_key_pressed(&Key::D) {
+		// 	pos[0] += 10
+		// }
+
+		key_registry.for_pressed_keys(|key| {
+			match key {
+				Key::W => pos[1] += 10,
+				Key::S => pos[1] -= 10,
+				Key::A => pos[0] -= 10,
+				Key::D => pos[0] += 10,
+				_ => ()
+			};
+		});
 
 		if resized {
 			back_buffer = surface.back_buffer().unwrap();
 		}
 		// entity.set_pos(pos.clone());
+		hud_registry.get_mut(&"Playeer").unwrap().set_pos(pos.clone());
 
 		// rendering code goes here
 		let t = start_t.elapsed().as_millis() as f32 * 1e-3;
