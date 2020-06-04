@@ -9,13 +9,13 @@ use lazy_static::lazy_static;
 use std::cmp::{min, PartialEq};
 use std::path::Path;
 
-use super::entity::*;
 use super::ASSETS_PATH;
 
 lazy_static! {
 	static ref FONT: &'static Path = &Path::new("Roboto-Regular.ttf");
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FontWeight {
 	Black,
@@ -26,6 +26,7 @@ pub enum FontWeight {
 	Thin,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FontStyle {
 	Regular,
@@ -179,7 +180,7 @@ pub fn tex_from_string<'p, C: GraphicsContext>(
 	surface: &mut C,
 	s: String,
 	font: Font,
-) -> Option<(Texture<Dim2, NormRGBA8UI>, [VertexUV; 4])> {
+) -> Option<(Texture<Dim2, NormRGBA8UI>, [[u32; 2]; 4])> {
 	let mut max_top_height = 0_u32;
 	let mut max_bottom_height = 0_u32;
 	let mut max_width = 0_u32;
@@ -245,16 +246,6 @@ pub fn tex_from_string<'p, C: GraphicsContext>(
 					as usize,
 				0_u8,
 			);
-			/*for i in (size[0]
-				* (max_bottom_height - (metrics.height as i64 - metrics.start_y) as u32)
-				- size[0])
-				..(size[0] * (max_bottom_height - (metrics.height as i64 - metrics.start_y) as u32))
-			{ // Change the last row to be red
-				padding_bottom[i as usize * 4] = 255;
-				padding_bottom[i as usize * 4 + 1] = 0;
-				padding_bottom[i as usize * 4 + 2] = 0;
-				padding_bottom[i as usize * 4 + 3] = 255;
-			}*/
 			if let Err(e) = tex.upload_part_raw(
 				GenMipmaps::No,
 				[
@@ -276,49 +267,13 @@ pub fn tex_from_string<'p, C: GraphicsContext>(
 		// 3 2
 		// 0 1 (UV indices)
 		return Some((tex, [
-			VertexUV::new([0, height as u32]),
-			VertexUV::new([width as u32, height as u32]),
-			VertexUV::new([width as u32, 0]),
-			VertexUV::new([0, 0]),
+			[0, height as u32],
+			[width as u32, height as u32],
+			[width as u32, 0],
+			[0, 0],
 		]));
 	} else {
 		eprintln!("Error initialising texture for string \"{}\"", s)
-	}
-	None
-}
-
-pub fn new_entity_from_string<'p, C: GraphicsContext>(
-	surface: &mut C,
-	s: String,
-	font: Font,
-) -> Option<SimpleEntity> {
-	if let Some((tex, uvs)) = tex_from_string(surface, s.clone(), font) {
-		let [width, height] = tex.size();
-		return Some(SimpleEntity::new_from_tex(
-			surface,
-			&[
-				Vertex::new(
-					VertexPosition::new([0, 0]),
-					uvs[0],
-				),
-				Vertex::new(
-					VertexPosition::new([width as i32, 0]),
-					uvs[1],
-				),
-				Vertex::new(
-					VertexPosition::new([width as i32, height as i32]),
-					uvs[2],
-				),
-				Vertex::new(
-					VertexPosition::new([0, height as i32]),
-					uvs[3],
-				),
-			],
-			&[0, 1, 2, 0, 2, 3],
-			tex,
-		));
-	} else {
-		eprintln!("Error creting texture for string \"{}\"", s)
 	}
 	None
 }
