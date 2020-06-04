@@ -43,6 +43,10 @@ impl Vertex {
 		self.uv = new_uv
 	}
 
+	pub fn update_pos(&mut self, new_pos: VertexPosition) {
+		self.position = new_pos
+	}
+
 	pub fn get_uv(&self) -> &VertexUV {
 		&self.uv
 	}

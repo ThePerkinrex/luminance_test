@@ -181,7 +181,7 @@ fn raw_glyph(c: char, font: Font) -> Option<(GlyphMetrics, Vec<u8>)> {
 pub fn tex_from_string<'p, C: GraphicsContext>(
 	surface: &mut C,
 	s: String,
-	font: Font,
+	font: &Font,
 ) -> Option<(Texture<Dim2, NormRGBA8UI>, [[u32; 2]; 4])> {
 	let mut max_top_height = 0_u32;
 	let mut max_bottom_height = 0_u32;

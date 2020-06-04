@@ -10,3 +10,6 @@ For debian install the `libfreetype-dev` apt package, for other distros, check y
 For MacOS, [`brew install freetype`](https://formulae.brew.sh/formula/freetype#default) should work, but make sure you've got [homebrew](brew.sh) installed.
 
 For Windows, go [here](https://github.com/PistonDevelopers/freetype-sys#for-windows-users) for install instructions, and make sure you change the path to your binaries in the `Cargo.toml` file.
+
+# Example
+Dynamic rendering

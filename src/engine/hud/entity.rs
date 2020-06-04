@@ -8,13 +8,18 @@ use luminance::texture::{Dim2, Texture};
 use std::collections::HashMap;
 use std::path::Path;
 
-use super::{Vertex, VertexUV, VertexPosition, HudUniformInterface};
+use super::{HudUniformInterface, Vertex, VertexPosition, VertexUV};
 
+use super::super::text::{tex_from_string, Font};
+use super::super::texture::TextureData;
 use super::super::utils::*;
 use super::super::ASSETS_PATH;
-use super::super::texture::TextureData;
-use super::super::text::{Font, tex_from_string};
 // use super::super::renderer::{Renderable, HasDepth};
+
+pub enum EntityKind {
+	Regular,
+	Text,
+}
 
 pub struct Entity {
 	vao: Tess,
@@ -24,6 +29,7 @@ pub struct Entity {
 	pos: [i32; 2],
 	depth: f32,
 	uv_states: Option<HashMap<String, Vec<VertexUV>>>, // ID: [VertexUV]
+	kind: EntityKind,
 }
 
 #[allow(dead_code)]
@@ -36,7 +42,7 @@ impl Entity {
 		path: &Path,
 	) -> Option<Entity> {
 		if let Some(img) = read_image(path) {
-			return Some(Self::new_from_img(surface, vertices, indices, img))
+			return Some(Self::new_from_img(surface, vertices, indices, img));
 		}
 		None
 	}
@@ -49,7 +55,7 @@ impl Entity {
 		img: image::RgbaImage,
 	) -> Entity {
 		let tex = load_from_disk(surface, img);
-		return Self::new_from_tex(surface, vertices, indices, tex)
+		return Self::new_from_tex(surface, vertices, indices, tex, EntityKind::Regular);
 	}
 
 	#[allow(dead_code)]
@@ -58,24 +64,26 @@ impl Entity {
 		vertices: &'p [Vertex],
 		indices: &'p [u8],
 		tex: Texture<Dim2, NormRGBA8UI>,
+		kind: EntityKind,
 	) -> Entity {
 		let tess = TessBuilder::new(surface)
-				.add_vertices(vertices)
-				.set_indices(indices)
-				.set_mode(TessMode::Triangle)
-				.build()
-				.unwrap();
-			// println!("{},{}", width, height);
-			let size = tex.size();
-			return Entity {
-				vao: tess,
-				tex: tex,
-				tex_size: size,
-				scale: 1.0,
-				pos: [0, 0],
-				depth: 0.0,
-				uv_states: None
-			};
+			.add_vertices(vertices)
+			.set_indices(indices)
+			.set_mode(TessMode::Triangle)
+			.build()
+			.unwrap();
+		// println!("{},{}", width, height);
+		let size = tex.size();
+		return Entity {
+			vao: tess,
+			tex: tex,
+			tex_size: size,
+			scale: 1.0,
+			pos: [0, 0],
+			depth: 0.0,
+			uv_states: None,
+			kind,
+		};
 	}
 
 	#[allow(dead_code)]
@@ -125,7 +133,12 @@ impl Entity {
 		file: &Path,
 	) -> Option<Self> {
 		match TextureData::load(file) {
-			Some(x) => Some(Self::new_with_texture_data(surface, vertices_pos, indices, x)),
+			Some(x) => Some(Self::new_with_texture_data(
+				surface,
+				vertices_pos,
+				indices,
+				x,
+			)),
 			None => None,
 		}
 	}
@@ -133,17 +146,14 @@ impl Entity {
 	pub fn new_entity_from_string<'p, C: GraphicsContext>(
 		surface: &mut C,
 		s: String,
-		font: Font,
+		font: &Font,
 	) -> Option<Self> {
 		if let Some((tex, uvs)) = tex_from_string(surface, s.clone(), font) {
 			let [width, height] = tex.size();
 			return Some(Self::new_from_tex(
 				surface,
 				&[
-					Vertex::new(
-						VertexPosition::new([0, 0]),
-						VertexUV::new(uvs[0]),
-					),
+					Vertex::new(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
 					Vertex::new(
 						VertexPosition::new([width as i32, 0]),
 						VertexUV::new(uvs[1]),
@@ -159,6 +169,7 @@ impl Entity {
 				],
 				&[0, 1, 2, 0, 2, 3],
 				tex,
+				EntityKind::Text,
 			));
 		} else {
 			eprintln!("Error creting texture for string \"{}\"", s)
@@ -174,7 +185,6 @@ impl Entity {
 		self.scale = new_scale
 	}
 
-
 	pub fn set_depth(&mut self, new_depth: f32) {
 		self.depth = new_depth
 	}
@@ -183,15 +193,13 @@ impl Entity {
 		self.depth
 	}
 
-
 	pub fn state_ids(&self) -> Vec<&String> {
 		if let Some(uv_states) = &self.uv_states {
 			uv_states.keys().collect()
-		}else {
+		} else {
 			Vec::new()
 		}
 	}
-
 
 	pub fn set_state<T: ToString>(&mut self, id: T) -> Result<(), ()> {
 		if let Some(uv_states) = self.uv_states.clone() {
@@ -200,11 +208,8 @@ impl Entity {
 				return Ok(());
 			}
 		}
-		
 		return Err(());
 	}
-
-	
 	pub fn update_uv(&mut self, new_uv: &[VertexUV]) {
 		let mut v_slice = self
 			.vao
@@ -213,6 +218,59 @@ impl Entity {
 		for i in 0..v_slice.len() {
 			v_slice[i].update_uv(new_uv[i])
 		}
+	}
+
+	pub fn update_pos(&mut self, new_pos: &[VertexPosition]) {
+		let mut v_slice = self
+			.vao
+			.as_slice_mut::<Vertex>()
+			.expect("Error getting mutablee slice");
+		for i in 0..v_slice.len() {
+			v_slice[i].update_pos(new_pos[i])
+		}
+	}
+
+	pub fn update(&mut self, new_v: &[(VertexPosition, VertexUV)]) {
+		let mut v_slice = self
+			.vao
+			.as_slice_mut::<Vertex>()
+			.expect("Error getting mutablee slice");
+		for i in 0..v_slice.len() {
+			v_slice[i].update_pos(new_v[i].0);
+			v_slice[i].update_uv(new_v[i].1);
+		}
+	}
+
+	pub fn update_text<T: ToString, C: GraphicsContext>(
+		&mut self,
+		surface: &mut C,
+		text: &T,
+		font: &Font,
+	) -> Result<(), ()> {
+		if let Some((tex, uvs)) = tex_from_string(surface, text.to_string(), font) {
+			let [width, height] = tex.size();
+			self.tex_size = tex.size();
+			self.tex = tex;
+			self.update(&[
+				(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
+				(
+					VertexPosition::new([width as i32, 0]),
+					VertexUV::new(uvs[1]),
+				),
+				(
+					VertexPosition::new([width as i32, height as i32]),
+					VertexUV::new(uvs[2]),
+				),
+				(
+					VertexPosition::new([0, height as i32]),
+					VertexUV::new(uvs[3]),
+				),
+			]);
+			return Ok(())
+		} else {
+			eprintln!("Error creating texture for string \"{}\"", text.to_string())
+		}
+		Err(())
 	}
 
 	pub fn render<C: GraphicsContext>(

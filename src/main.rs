@@ -51,7 +51,7 @@ fn main_loop(mut surface: GlfwSurface) {
 	let mut entity2 = engine::hud::Entity::new_entity_from_string(
 		&mut surface,
 		"Lies & deception".into(),
-		font,
+		&font,
 	)
 	.unwrap();
 
@@ -92,24 +92,6 @@ fn main_loop(mut surface: GlfwSurface) {
 			key_registry.event(event);
 		}
 
-		// WindowEvent::Key(Key::W, _, Action::Press, _) => pos[1] += 10,
-		// WindowEvent::Key(Key::S, _, Action::Press, _) => pos[1] -= 10,
-		// WindowEvent::Key(Key::A, _, Action::Press, _) => pos[0] -= 10,
-		// WindowEvent::Key(Key::D, _, Action::Press, _) => pos[0] += 10,
-
-		// if key_registry.is_key_pressed(&Key::W) {
-		// 	pos[1] += 10
-		// }
-		// if key_registry.is_key_pressed(&Key::S) {
-		// 	pos[1] -= 10
-		// }
-		// if key_registry.is_key_pressed(&Key::A) {
-		// 	pos[0] -= 10
-		// }
-		// if key_registry.is_key_pressed(&Key::D) {
-		// 	pos[0] += 10
-		// }
-
 		key_registry.for_pressed_keys(|key| {
 			match key {
 				Key::W => pos[1] += 10,
@@ -128,19 +110,14 @@ fn main_loop(mut surface: GlfwSurface) {
 
 		// rendering code goes here
 		let t = start_t.elapsed().as_millis() as f32 * 1e-3;
+
+		hud_registry.get_mut(&"Text").unwrap().update_text(&mut surface, &format!("{:.2}", t), &font).expect("Error updating text"); // Dynamic text rendering
 		let color = [t.cos(), t.sin(), 0.5, 1.];
 
 		surface.pipeline_builder().pipeline(
 			&back_buffer,
 			&PipelineState::default().set_clear_color(color),
 			|pipeline, mut shd_gate| {
-				/*shd_gate.shade(&hud_program, |iface, mut rdr_gate| {
-					rdr_gate.render(render_st, |mut tess_gate| {
-						//tess_gate.render(triangle.slice(..))
-						entity.render(&pipeline, &iface, &mut tess_gate, &size);
-						entity2.render(&pipeline, &iface, &mut tess_gate, &size);
-					})
-				});*/
 				renderer.render(&hud_registry, &mut shd_gate, &pipeline, &size);
 			},
 		);
