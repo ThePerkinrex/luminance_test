@@ -13,3 +13,4 @@ For Windows, go [here](https://github.com/PistonDevelopers/freetype-sys#for-wind
 
 # Example
 Dynamic rendering
+![dynamic_rendering.gif](dynamic_rendering.gif)
