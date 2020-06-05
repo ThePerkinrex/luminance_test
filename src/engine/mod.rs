@@ -6,11 +6,12 @@ use std::path::Path;
 
 // RENDERING MODULES
 pub mod hud;
-pub mod spacial;
+pub mod spatial;
 
 // Public mods
 pub mod text;
 pub mod texture;
+pub mod sound;
 
 // Mods to re-export
 mod entity_registry;

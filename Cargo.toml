@@ -14,8 +14,19 @@ rustc-link-lib = ["freetype"]
 luminance = "0.39"
 luminance-glfw = "0.12"
 luminance-derive = "0.5"
+
 image = "0.23.4"
+
 ron = "0.6.0"
 serde = "1.0.111"
+
 lazy_static = "1.4.0"
+try-guard = "0.2.0"
+
 freetype-rs = "0.26.0" # Look at crates.io instructions for installing freetype2 on windows
+
+wavefront_obj = "7"
+cgmath = "0.17.0"
+
+ambisonic = "0.3.0"
+hound = "3.4.0"

@@ -48,7 +48,7 @@ fn main_loop(mut surface: GlfwSurface) {
 	], &[0,1,2, 0,2,3], Path::new("texture.ron")).expect("Error creeating entity");
 
 	let mut font = engine::text::Font::new("Roboto", engine::text::FontWeight::Black, engine::text::FontStyle::Regular, 20);
-	font.set_color(engine::RgbaColor::new(255,0,0,170));
+	// font.set_color(engine::RgbaColor::new(255,0,0,170));
 	let mut entity2 = engine::hud::Entity::new_entity_from_string(
 		&mut surface,
 		"Lies & deception".into(),
@@ -71,6 +71,8 @@ fn main_loop(mut surface: GlfwSurface) {
 	let renderer = engine::hud::Renderer::new();
 
 	let mut key_registry = engine::KeyRegistry::new();
+
+	let spatial_renderer = engine::spatial::Renderer::new(&mut surface, size);
 
 	'app: loop {
 		let mut resized = false;
@@ -120,6 +122,7 @@ fn main_loop(mut surface: GlfwSurface) {
 			&PipelineState::default().set_clear_color(color),
 			|pipeline, mut shd_gate| {
 				renderer.render(&hud_registry, &mut shd_gate, &pipeline, &size);
+				spatial_renderer.render(&mut shd_gate, &pipeline, &size);
 			},
 		);
 
