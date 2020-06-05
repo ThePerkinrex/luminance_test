@@ -47,7 +47,8 @@ fn main_loop(mut surface: GlfwSurface) {
 		engine::hud::VertexPosition::new([0, 200]),
 	], &[0,1,2, 0,2,3], Path::new("texture.ron")).expect("Error creeating entity");
 
-	let mut font = engine::text::Font::new("Roboto", engine::text::FontWeight::Black, engine::text::FontStyle::Regular, 20);
+	let font = engine::text::Font::new("Roboto", engine::text::FontWeight::Black, engine::text::FontStyle::Regular, 20.);
+	// let mut rt_font = engine::text_rusttype::Font::new("Roboto", engine::text_rusttype::FontWeight::Black, engine::text_rusttype::FontStyle::Regular, 20.);
 	// font.set_color(engine::RgbaColor::new(255,0,0,170));
 	let mut entity2 = engine::hud::Entity::new_entity_from_string(
 		&mut surface,
@@ -114,7 +115,7 @@ fn main_loop(mut surface: GlfwSurface) {
 		// rendering code goes here
 		let t = start_t.elapsed().as_millis() as f32 * 1e-3;
 
-		hud_registry.get_mut(&"Text").unwrap().update_text(&mut surface, &format!("{:.2}", t), &font).expect("Error updating text"); // Dynamic text rendering
+		// hud_registry.get_mut(&"Text").unwrap().update_text(&mut surface, &format!("{:.2}", t), &font).expect("Error updating text"); // Dynamic text rendering
 		let color = [t.cos(), t.sin(), 0.5, 1.];
 
 		surface.pipeline_builder().pipeline(

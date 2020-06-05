@@ -4,10 +4,6 @@ version = "0.1.0"
 authors = ["ThePerkinrex <theperkinrex@gmail.com>"]
 edition = "2018"
 
-[target.x86_64-pc-windows-msvc.freetype]
-rustc-link-search = ["C:\\Path\\To\\binaries\\x86_64"] # CHANGE THIS WHEN ON WINDOWS
-rustc-link-lib = ["freetype"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -22,7 +18,7 @@ serde = "1.0.111"
 
 lazy_static = "1.4.0"
 
-freetype-rs = "0.26.0" # Look at crates.io instructions for installing freetype2 on windows
+rusttype = "0.9.2" # Native rust replacement for FreeType (No installation required)
 
 wavefront_obj = "7"
 cgmath = "0.17.0"
