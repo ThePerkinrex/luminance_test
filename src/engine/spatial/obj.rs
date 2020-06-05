@@ -1,7 +1,5 @@
 use luminance::context::GraphicsContext;
-use luminance::tess::{Mode as TessMode, Tess, TessBuilder, TessError};
-
-use try_guard::verify;
+use luminance::tess::{Mode as TessMode, Tess, TessBuilder};
 
 use wavefront_obj::{mtl, obj};
 
@@ -83,7 +81,7 @@ impl Obj {
 		println!("{:?}", mtl);
 		let objects = obj_set.objects;
 
-		verify!(objects.len() == 1).ok_or("expecting a single object".to_owned())?;
+		assert_eq!(objects.len(), 1, "expecting a single object");
 
 		let object = objects.into_iter().next().unwrap();
 
