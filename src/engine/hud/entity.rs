@@ -13,7 +13,7 @@ use super::{HudUniformInterface, Vertex, VertexPosition, VertexUV};
 use super::super::text::{tex_from_string, Font};
 use super::super::texture::TextureData;
 use super::super::utils::*;
-use super::super::ASSETS_PATH;
+use super::super::TEXTURES_PATH;
 // use super::super::renderer::{Renderable, HasDepth};
 
 pub enum EntityKind {
@@ -114,11 +114,11 @@ impl Entity {
 			surface,
 			&vertices,
 			indices,
-			ASSETS_PATH.join(&tex_data.file).as_ref(),
+			TEXTURES_PATH.join(&tex_data.file).as_ref(),
 		)
 		.expect(&format!(
 			"Error creating simple entity for texture (IMAGE NOT FOUND): {:?}",
-			ASSETS_PATH.join(&tex_data.file)
+			TEXTURES_PATH.join(&tex_data.file)
 		));
 
 		ret.uv_states = Some(uv_states);

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
 
-use super::ASSETS_PATH;
+use super::TEXTURES_PATH;
 
 #[derive(Debug, Deserialize)]
 pub struct TextureData {
@@ -17,7 +17,7 @@ pub struct TextureData {
 
 impl TextureData {
 	pub fn load(file: &Path) -> Option<Self> {
-		let ron_path = ASSETS_PATH.join(file);
+		let ron_path = TEXTURES_PATH.join(file);
 		println!("Opening {:?}", ron_path);
 		let f = File::open(ron_path).expect("Error opening RON Texture file. Path might be wrong?");
 

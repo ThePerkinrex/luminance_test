@@ -10,7 +10,7 @@ use std::fs::File;
 use std::io::Read as _;
 use std::path::Path;
 
-use super::super::ASSETS_PATH;
+use super::super::MODELS_PATH;
 use super::{Vertex, VertexIndex, VertexNormal, VertexPosition};
 
 pub type Material = mtl::Material;
@@ -62,7 +62,7 @@ impl Obj {
 		P: AsRef<Path>,
 	{
 		let file_content = {
-			let mut file = File::open(ASSETS_PATH.join(path))
+			let mut file = File::open(MODELS_PATH.join(path))
 				.map_err(|e| format!("cannot open file: {}", e))?;
 			let mut content = String::new();
 			file.read_to_string(&mut content).unwrap();
@@ -71,7 +71,7 @@ impl Obj {
 		let obj_set = obj::parse(file_content).map_err(|e| format!("cannot parse: {:?}", e))?;
 
 		let mtl = if let Some(mtl_lib) = obj_set.material_library {
-			let mut file = File::open(ASSETS_PATH.join(mtl_lib))
+			let mut file = File::open(MODELS_PATH.join(mtl_lib))
 				.map_err(|e| format!("cannot open file: {}", e))?;
 			let mut content = String::new();
 			file.read_to_string(&mut content).unwrap();

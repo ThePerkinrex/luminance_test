@@ -9,7 +9,7 @@ use lazy_static::lazy_static;
 use std::cmp::{min, PartialEq};
 use std::path::Path;
 
-use super::ASSETS_PATH;
+use super::FONTS_PATH;
 use super::RgbaColor;
 
 lazy_static! {
@@ -107,7 +107,7 @@ fn draw_map(map: Vec<Vec<u8>>, metrics: GlyphMetrics) {
 
 fn raw_glyph(c: char, font: Font) -> Option<(GlyphMetrics, Vec<u8>)> {
 	if let Ok(library) = ft::Library::init() {
-		if let Ok(face) = library.new_face(ASSETS_PATH.join("fonts").join(font.name()), 0) {
+		if let Ok(face) = library.new_face(FONTS_PATH.join(font.name()), 0) {
 			// println!("FONT LOADED");
 			face.set_char_size(font.size as isize * 64, 0, font.size * 3, 0).expect("Error setting char size");
 			face.load_char(c as usize, ft::face::LoadFlag::RENDER)

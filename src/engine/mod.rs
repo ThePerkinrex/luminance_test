@@ -2,7 +2,7 @@
 
 use lazy_static::lazy_static;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 // RENDERING MODULES
 pub mod hud;
@@ -24,6 +24,9 @@ pub use utils::RgbaColor;
 
 lazy_static! {
 	pub static ref ASSETS_PATH: &'static Path = Path::new("assets");
+	pub static ref TEXTURES_PATH: PathBuf = ASSETS_PATH.join("textures");
+	pub static ref MODELS_PATH: PathBuf = ASSETS_PATH.join("models");
+	pub static ref FONTS_PATH: PathBuf = ASSETS_PATH.join("fonts");
 }
 
 // pub trait Game {

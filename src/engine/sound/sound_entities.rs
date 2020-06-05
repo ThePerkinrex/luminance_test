@@ -104,10 +104,8 @@ impl<S: Source<Item = f32> + Send + Clone + 'static> UnpositionedSound<S> {
 		}
 	}
 
-	
-
 	pub fn update(&mut self, d: Duration) {
-		if let Some((sound, length)) = self.sound.as_mut() {
+		if let Some((_, length)) = self.sound.as_mut() {
 			length.update_left(&d);
 			if length.is_done() {
 				self.sound = None
