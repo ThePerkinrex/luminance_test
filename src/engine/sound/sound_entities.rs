@@ -95,7 +95,6 @@ pub struct UnpositionedSound<S: Source<Item = f32> + Send + Clone + 'static> {
 	sound: Option<(SoundController, SoundLength)>,
 }
 
-// TODO make the position use a world reeference, not a user reference
 impl<S: Source<Item = f32> + Send + Clone + 'static> UnpositionedSound<S> {
 	pub fn new(source: S, length: SoundLength) -> Self {
 		Self {
@@ -118,10 +117,11 @@ impl<S: Source<Item = f32> + Send + Clone + 'static> UnpositionedSound<S> {
 		self.sound = Some((s, self.source.1.clone()))
 	}
 
-	pub fn stop(&self) {
+	pub fn stop(&mut self) {
 		if let Some((s, _)) = self.sound.as_ref() {
 			s.stop()
 		}
+		self.sound = None
 	}
 
 	pub fn is_done(&self) -> bool {
