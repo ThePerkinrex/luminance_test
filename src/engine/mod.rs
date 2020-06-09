@@ -23,9 +23,9 @@ pub use key_registry::KeyRegistry;
 pub use utils::{FileLoader, RgbaColor};
 
 lazy_static! {
-    pub static ref TEXTURES_PATH: PathBuf = PathBuf::from("textures");
-    pub static ref MODELS_PATH: PathBuf = PathBuf::from("models");
-    pub static ref FONTS_PATH: PathBuf = PathBuf::from("fonts");
+	pub static ref TEXTURES_PATH: PathBuf = PathBuf::from("textures");
+	pub static ref MODELS_PATH: PathBuf = PathBuf::from("models");
+	pub static ref FONTS_PATH: PathBuf = PathBuf::from("fonts");
 }
 
 // pub trait Game {

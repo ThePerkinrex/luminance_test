@@ -16,33 +16,33 @@ pub use renderer::Renderer;
 
 #[derive(UniformInterface)]
 pub struct SpatialUniformInterface {
-    #[uniform(unbound)]
-    projection: Uniform<M44>,
-    #[uniform(unbound)]
-    view: Uniform<M44>,
-    #[uniform(unbound)]
-    model: Uniform<M44>,
-    #[uniform(unbound, name = "normal_m")]
-    normal: Uniform<M44>,
-    obj_color_diffuse: Uniform<[f32; 3]>,
-    obj_color_specular: Uniform<[f32; 3]>,
-    obj_specular_coefficient: Uniform<f32>,
-    view_pos: Uniform<[f32; 3]>,
+	#[uniform(unbound)]
+	projection: Uniform<M44>,
+	#[uniform(unbound)]
+	view: Uniform<M44>,
+	#[uniform(unbound)]
+	model: Uniform<M44>,
+	#[uniform(unbound, name = "normal_m")]
+	normal: Uniform<M44>,
+	obj_color_diffuse: Uniform<[f32; 3]>,
+	obj_color_specular: Uniform<[f32; 3]>,
+	obj_specular_coefficient: Uniform<f32>,
+	view_pos: Uniform<[f32; 3]>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Semantics)]
 pub enum VertexSemantics {
-    #[sem(name = "position", repr = "[f32; 3]", wrapper = "VertexPosition")]
-    Position,
-    #[sem(name = "normal", repr = "[f32; 3]", wrapper = "VertexNormal")]
-    Normal,
+	#[sem(name = "position", repr = "[f32; 3]", wrapper = "VertexPosition")]
+	Position,
+	#[sem(name = "normal", repr = "[f32; 3]", wrapper = "VertexNormal")]
+	Normal,
 }
 
 #[derive(Vertex, Clone, Copy, Debug)]
 #[vertex(sem = "VertexSemantics")]
 pub struct Vertex {
-    position: VertexPosition,
-    normal: VertexNormal,
+	position: VertexPosition,
+	normal: VertexNormal,
 }
 
 type VertexIndex = u32;
