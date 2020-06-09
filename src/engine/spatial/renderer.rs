@@ -3,18 +3,13 @@ use luminance::context::GraphicsContext;
 use luminance::pipeline::{Pipeline, ShadingGate};
 use luminance::render_state::RenderState;
 use luminance::shader::program::Program;
-use luminance::tess::{Tess, TessSliceIndex};
 
-use cgmath::{Matrix, Matrix3, Matrix4, Rad, SquareMatrix};
+use cgmath::Rad;
 
 use std::path::Path;
 
 use super::super::FileLoader;
-use super::{
-	camera::Camera,
-	obj::{AsArray, Material, Obj},
-	SpatialUniformInterface, VertexSemantics,
-};
+use super::{camera::Camera, entity::Entity, obj::Obj, SpatialUniformInterface, VertexSemantics};
 
 const VS_STR: &str = include_str!("shaders/vs.glsl");
 const FS_STR: &str = include_str!("shaders/fs.glsl");
@@ -23,8 +18,7 @@ pub struct Renderer {
 	program: Program<VertexSemantics, (), SpatialUniformInterface>,
 	render_st: RenderState,
 	pub camera: Camera,
-	mesh: Vec<(Tess, Material)>,
-	rotation: Rad<f32>,
+	mesh: Entity, //Vec<(Tess, Material)>,
 }
 
 impl Renderer {
@@ -46,10 +40,10 @@ impl Renderer {
 			program,
 			render_st,
 			camera: Camera::new(size),
-			mesh: Obj::load(file_loader, Path::new("test2.obj"))
-				.unwrap()
-				.to_tess(surface),
-			rotation: Rad(0.0),
+			mesh: Entity::new(
+				surface,
+				Obj::load(file_loader, Path::new("test2.obj")).unwrap(),
+			),
 		}
 	}
 
@@ -63,27 +57,15 @@ impl Renderer {
 		shd_gate.shade(&self.program, |iface, mut rdr_gate| {
 			iface.projection.update(self.camera.projection.into());
 			iface.view.update(self.camera.view.into());
-			let model = Matrix4::from_scale(1.); // * Matrix4::from_angle_x(self.rotation);
-			iface.model.update(model.clone().into());
-			iface.normal.update(model.clone().invert().unwrap().into());
 			iface.view_pos.update(self.camera.pos.into());
 
 			rdr_gate.render(&self.render_st, |mut tess_gate| {
-				for (mesh, material) in &self.mesh {
-					iface
-						.obj_color_diffuse
-						.update(material.color_diffuse.as_array().into());
-					iface
-						.obj_color_specular
-						.update(material.color_specular.as_array().into());
-					iface
-						.obj_specular_coefficient
-						.update(material.specular_coefficient as f32);
-					tess_gate.render(mesh.slice(..));
-				}
+				self.mesh.render(pipeline, &iface, &mut tess_gate, size)
 			});
 		});
-
-		self.rotation += Rad(0.01);
+		self.mesh.rot_x += Rad(0.01).into();
+		self.mesh.rot_y += Rad(0.01).into();
+		// self.mesh.pos += Vector3::new(0.,0.01,0.);
+		self.mesh.scale += 0.01;
 	}
 }

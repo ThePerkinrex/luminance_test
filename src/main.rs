@@ -160,8 +160,9 @@ fn main_loop(mut surface: GlfwSurface) {
 			&back_buffer,
 			&PipelineState::default().set_clear_color(color),
 			|pipeline, mut shd_gate| {
-				renderer.render(&hud_registry, &mut shd_gate, &pipeline, &size);
 				spatial_renderer.render(&mut shd_gate, &pipeline, &size);
+				// Render the HUD last
+				renderer.render(&hud_registry, &mut shd_gate, &pipeline, &size);
 			},
 		);
 
