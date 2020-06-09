@@ -1,0 +1,5 @@
+[alias]
+r = "run"
+rr = "run --release"
+packed_run = "run --release --features=pack"
+packed_build = "build --release --features=pack"

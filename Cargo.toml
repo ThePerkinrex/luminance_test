@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["ThePerkinrex <theperkinrex@gmail.com>"]
 edition = "2018"
 
+
+
+[features]
+pack = []
+
 [target.x86_64-pc-windows-gnu]
 linker = "x86_64-w64-mingw32-gcc"
 ar = "x86_64-w64-mingw32-gcc-ar"
@@ -29,3 +34,8 @@ cgmath = "0.17.0"
 
 ambisonic = "0.3.0"
 hound = "3.4.0"
+
+zip = "0.5.5"
+
+[build-dependencies]
+zip = "0.5.5"
