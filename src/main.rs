@@ -8,7 +8,7 @@ use luminance_glfw::{
 	Action, CursorMode, GlfwSurface, Key, Surface as _, WindowDim, WindowEvent, WindowOpt,
 };
 
-use cgmath::{InnerSpace, Quaternion, Rad, Rotation3, Vector3};
+use cgmath::{EuclideanSpace, InnerSpace, Point3, Quaternion, Rad, Rotation3, Vector3};
 
 use std::path::Path;
 use std::process::exit;
@@ -106,15 +106,15 @@ fn main_loop(mut surface: GlfwSurface) {
 				engine::hud::VertexUV::new([0, 0]),
 			),
 			engine::hud::Vertex::new(
-				engine::hud::VertexPosition::new([1000, 0]),
+				engine::hud::VertexPosition::new([500, 0]),
 				engine::hud::VertexUV::new([depth_map_size[0], 0]),
 			),
 			engine::hud::Vertex::new(
-				engine::hud::VertexPosition::new([0, 1000]),
+				engine::hud::VertexPosition::new([0, 500]),
 				engine::hud::VertexUV::new([0, depth_map_size[1]]),
 			),
 			engine::hud::Vertex::new(
-				engine::hud::VertexPosition::new([1000, 1000]),
+				engine::hud::VertexPosition::new([500, 500]),
 				engine::hud::VertexUV::new(depth_map_size),
 			),
 		],
@@ -133,7 +133,8 @@ fn main_loop(mut surface: GlfwSurface) {
 
 	let mut key_registry = engine::KeyRegistry::new();
 
-	let mut spatial_renderer = engine::spatial::Renderer::new(&mut file_loader, &mut surface, size);
+	let mut spatial_renderer =
+		engine::spatial::Renderer::new(&mut file_loader, &mut surface, size, depth_map_size);
 	// let mut depth_renderer = engine::spatial::depth::Renderer::new(&mut file_loader, &mut surface, size);
 
 	let mut last_pos = [0.0; 2];
@@ -220,6 +221,12 @@ fn main_loop(mut surface: GlfwSurface) {
 			spatial_renderer.camera.pos += fd + rt;
 		});
 		spatial_renderer.camera.update();
+
+		let light_pos = spatial_renderer.camera.pos + Vector3::new(0.0, 10., 0.);
+		spatial_renderer.depth_camera.pos = light_pos;
+		spatial_renderer
+			.depth_camera
+			.look_at(spatial_renderer.mesh.pos);
 
 		if resized {
 			back_buffer = surface.back_buffer().unwrap();

@@ -1,6 +1,6 @@
 use luminance::linear::{M33, M44};
 use luminance::pipeline::BoundTexture;
-use luminance::pixel::NormUnsigned;
+use luminance::pixel::Floating;
 use luminance::shader::program::Uniform;
 use luminance::texture::Dim2;
 
@@ -25,10 +25,14 @@ pub struct SpatialUniformInterface {
 	model: Uniform<M44>,
 	#[uniform(unbound, name = "normal_m")]
 	normal: Uniform<M44>,
+	#[uniform(unbound)]
+	light_view: Uniform<M44>,
 	obj_color_diffuse: Uniform<[f32; 3]>,
 	obj_color_specular: Uniform<[f32; 3]>,
 	obj_specular_coefficient: Uniform<f32>,
 	view_pos: Uniform<[f32; 3]>,
+	light_pos: Uniform<[f32; 3]>,
+	shadow_map: Uniform<&'static BoundTexture<'static, Dim2, Floating>>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Semantics)]

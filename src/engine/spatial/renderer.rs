@@ -5,7 +5,7 @@ use luminance::render_state::RenderState;
 use luminance::shader::program::Program;
 use luminance::tess::TessSliceIndex;
 
-use cgmath::Rad;
+use cgmath::Vector3;
 
 use std::path::Path;
 
@@ -22,7 +22,9 @@ pub struct Renderer {
 	depth_program: Program<depth::VertexSemantics, (), depth::UniformInterface>,
 	render_st: RenderState,
 	pub camera: Camera,
-	pub mesh: Entity, //Vec<(Tess, Material)>,
+	pub depth_camera: Camera,
+	pub terrain: Entity, //Vec<(Tess, Material)>,
+	pub mesh: Entity,    //Vec<(Tess, Material)>,
 }
 
 impl Renderer {
@@ -30,6 +32,7 @@ impl Renderer {
 		file_loader: &mut FileLoader,
 		surface: &mut C,
 		size: [u32; 2],
+		depth_map_size: [u32; 2],
 	) -> Self {
 		let program: Program<VertexSemantics, (), SpatialUniformInterface> =
 			Program::from_strings(None, VS_STR, None, FS_STR)
@@ -49,9 +52,11 @@ impl Renderer {
 			depth_program,
 			render_st,
 			camera: Camera::new(size),
+			depth_camera: Camera::new(depth_map_size),
+			terrain: Entity::new(surface, terrain::generate(1000, 1000)),
 			mesh: Entity::new(
 				surface,
-				terrain::generate(1000, 1000), //Obj::load(file_loader, Path::new("test2.obj")).unwrap(),
+				Obj::load(file_loader, Path::new("test2.obj")).unwrap(),
 			),
 		}
 	}
@@ -67,9 +72,14 @@ impl Renderer {
 			iface.projection.update(self.camera.projection.into());
 			iface.view.update(self.camera.view.into());
 			iface.view_pos.update(self.camera.pos.into());
+			iface.light_pos.update(self.depth_camera.pos.into());
+			iface
+				.light_view
+				.update((self.depth_camera.projection * self.depth_camera.view).into());
 
 			rdr_gate.render(&self.render_st, |mut tess_gate| {
-				self.mesh.render(pipeline, &iface, &mut tess_gate, size)
+				self.terrain.render(pipeline, &iface, &mut tess_gate, size);
+				self.mesh.render(pipeline, &iface, &mut tess_gate, size);
 			});
 		});
 		//self.mesh.rot_x += Rad(0.01).into();
@@ -84,23 +94,25 @@ impl Renderer {
 		pipeline: &Pipeline,
 		size: &[u32; 2],
 	) {
-		self.camera.update_surface_size(size.clone());
-		shd_gate.shade(&self.program, |iface, mut rdr_gate| {
-			iface.projection.update(self.camera.projection.into());
-			iface.view.update(self.camera.view.into());
-			iface.view_pos.update(self.camera.pos.into());
+		// self.camera.update_surface_size(size.clone());
+		// shd_gate.shade(&self.program, |iface, mut rdr_gate| {
+		// 	iface.projection.update(self.camera.projection.into());
+		// 	iface.view.update(self.camera.view.into());
+		// 	iface.view_pos.update(self.camera.pos.into());
 
-			rdr_gate.render(&self.render_st, |mut tess_gate| {
-				self.mesh.render(pipeline, &iface, &mut tess_gate, size)
-			});
-		});
+		// 	rdr_gate.render(&self.render_st, |mut tess_gate| {
+		// 		self.mesh.render(pipeline, &iface, &mut tess_gate, size)
+		// 	});
+		// });
 		//self.mesh.rot_x += Rad(0.01).into();
 		//self.mesh.rot_y += Rad(0.01).into();
-		// self.mesh.pos += Vector3::new(0.,0.01,0.);
+		self.mesh.pos += Vector3::new(-0.01, 0., -0.01);
 		//self.mesh.scale += 0.01;
 
-		let p = self.camera.projection;
-		let v = self.camera.view;
+		// let light_pos = Point3::new(-1.1,2.,3.);
+
+		let p = self.depth_camera.projection;
+		let v = self.depth_camera.view;
 		let v_p_matrix = p * v;
 		// self.camera.update_surface_size(size.clone());
 		shd_gate.shade(&self.depth_program, |iface, mut rdr_gate| {
@@ -108,9 +120,13 @@ impl Renderer {
 			// iface.view.update(self.camera.view.into());
 			// iface.view_pos.update(self.camera.pos.into());
 			iface.matrix.update(v_p_matrix.into());
-			iface.model.update(self.mesh.model_matrix().into());
 
 			rdr_gate.render(&self.render_st, |mut tess_gate| {
+				iface.model.update(self.terrain.model_matrix().into());
+				for (mesh, _) in &self.terrain.tess {
+					tess_gate.render(mesh.slice(..));
+				}
+				iface.model.update(self.mesh.model_matrix().into());
 				for (mesh, _) in &self.mesh.tess {
 					tess_gate.render(mesh.slice(..));
 				}

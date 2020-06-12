@@ -52,10 +52,10 @@ impl Camera {
 		self.view = Matrix4::look_at_dir(self.pos, self.dir, Vector3::unit_y());
 	}
 
-	// pub fn look_at(&mut self, at: Point3<f32>) {
-	// 	self.dir = at - self.pos;
-	// 	self.update()
-	// }
+	pub fn look_at(&mut self, at: Point3<f32>) {
+		self.dir = at - self.pos;
+		self.update()
+	}
 
 	// pub fn look_at_dir(&mut self, dir: Vector3<f32>) {
 	// 	self.dir = dir;
