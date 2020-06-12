@@ -1,5 +1,5 @@
 use luminance::context::GraphicsContext;
-use luminance::pixel::NormRGBA8UI;
+use luminance::pixel::{Depth32F, NormRGBA8UI};
 use luminance::texture::{Dim2, GenMipmaps, Sampler, Texture};
 
 use image;
@@ -8,9 +8,11 @@ use zip::ZipArchive;
 
 use lazy_static::lazy_static;
 
+use cgmath::Rad;
+
 use std::fs::File;
 use std::io::{Cursor, Read, Seek};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 // read the texture into memory as a whole bloc (i.e. no streaming)
 pub fn read_image(file_loader: &mut FileLoader, path: &Path) -> Option<image::RgbaImage> {
@@ -103,10 +105,13 @@ impl<'a> FileLoader<'a> {
 	}
 
 	pub fn load<P: AsRef<Path>>(&mut self, p: P) -> Option<Cursor<Vec<u8>>> {
-		println!("{:?}", p.as_ref());
+		println!(
+			"Loading {}",
+			&Self::path_buf_as_zip_path(ASSETS_PATH.join(&p))
+		);
 		if cfg!(feature = "pack") {
 			let ar = self.ar.as_mut().unwrap();
-			if let Ok(mut f) = ar.by_name(ASSETS_PATH.join(p).to_str().unwrap()) {
+			if let Ok(mut f) = ar.by_name(&Self::path_buf_as_zip_path(ASSETS_PATH.join(p))) {
 				let mut buf = Vec::new();
 				f.read_to_end(&mut buf).expect("Error loading file");
 				Some(Cursor::new(buf))
@@ -123,4 +128,50 @@ impl<'a> FileLoader<'a> {
 			}
 		}
 	}
+
+	fn path_buf_as_zip_path(p: PathBuf) -> String {
+		let mut r = Vec::<String>::new();
+		for s in p.into_iter() {
+			r.push(s.to_str().unwrap().to_string());
+		}
+		r.join("/")
+	}
+}
+
+pub fn depth_texture_to_color<C: GraphicsContext>(
+	surface: &mut C,
+	t: &Texture<Dim2, Depth32F>,
+) -> Texture<Dim2, NormRGBA8UI> {
+	let (width, height) = {
+		let [w, h] = t.size();
+		(w as usize, h as usize)
+	};
+	let mut texels: Vec<u8> = Vec::new();
+	texels.resize(width * height * 4, 0_u8);
+	let raw = t.get_raw_texels();
+	for i in 0..height {
+		for j in 0..width {
+			let val = (raw[i * width + j]).round() as u8;
+			print!("{:.2} ", val);
+			texels[i * width * 4 + j * 4 + 0] = val;
+			texels[i * width * 4 + j * 4 + 1] = val;
+			texels[i * width * 4 + j * 4 + 2] = val;
+			texels[i * width * 4 + j * 4 + 3] = 255;
+			// A: This could be multiplied times the alpha multiplier
+		}
+		println!("");
+	}
+
+	let res_tex: Texture<Dim2, NormRGBA8UI> = Texture::new(
+		surface,
+		[width as u32, height as u32],
+		0,
+		Sampler::default(),
+	)
+	.expect("Error creating texture");
+
+	res_tex
+		.upload_raw(GenMipmaps::No, &texels)
+		.expect("Error uploading texture");
+	res_tex
 }

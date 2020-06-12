@@ -1,6 +1,6 @@
 use luminance::context::GraphicsContext;
 use luminance::pipeline::{Pipeline, TessGate};
-use luminance::pixel::NormRGBA8UI;
+use luminance::pixel::{Floating, NormRGBA8UI, NormUnsigned, Pixel};
 use luminance::shader::program::ProgramInterface;
 use luminance::tess::{Mode as TessMode, Tess, TessBuilder, TessSliceIndex as _};
 use luminance::texture::{Dim2, Texture};
@@ -29,10 +29,8 @@ pub struct Entity {
 	pos: [i32; 2],
 	depth: f32,
 	uv_states: Option<HashMap<String, Vec<VertexUV>>>, // ID: [VertexUV]
-	kind: EntityKind,
 }
 
-#[allow(dead_code)]
 impl Entity {
 	#[allow(dead_code)]
 	pub fn new<'p, C: GraphicsContext>(
@@ -41,7 +39,7 @@ impl Entity {
 		vertices: &'p [Vertex],
 		indices: &'p [u8],
 		path: &Path,
-	) -> Option<Entity> {
+	) -> Option<Self> {
 		if let Some(img) = read_image(file_loader, path) {
 			return Some(Self::new_from_img(surface, vertices, indices, img));
 		}
@@ -54,37 +52,9 @@ impl Entity {
 		vertices: &'p [Vertex],
 		indices: &'p [u8],
 		img: image::RgbaImage,
-	) -> Entity {
+	) -> Self {
 		let tex = load_from_disk(surface, img);
-		return Self::new_from_tex(surface, vertices, indices, tex, EntityKind::Regular);
-	}
-
-	#[allow(dead_code)]
-	pub fn new_from_tex<'p, C: GraphicsContext>(
-		surface: &mut C,
-		vertices: &'p [Vertex],
-		indices: &'p [u8],
-		tex: Texture<Dim2, NormRGBA8UI>,
-		kind: EntityKind,
-	) -> Entity {
-		let tess = TessBuilder::new(surface)
-			.add_vertices(vertices)
-			.set_indices(indices)
-			.set_mode(TessMode::Triangle)
-			.build()
-			.unwrap();
-		// println!("{},{}", width, height);
-		let size = tex.size();
-		return Entity {
-			vao: tess,
-			tex: tex,
-			tex_size: size,
-			scale: 1.0,
-			pos: [0, 0],
-			depth: 0.0,
-			uv_states: None,
-			kind,
-		};
+		return Self::new_from_tex(surface, vertices, indices, tex);
 	}
 
 	#[allow(dead_code)]
@@ -175,12 +145,37 @@ impl Entity {
 				],
 				&[0, 1, 2, 0, 2, 3],
 				tex,
-				EntityKind::Text,
 			));
 		} else {
 			eprintln!("Error creting texture for string \"{}\"", s)
 		}
 		None
+	}
+
+	#[allow(dead_code)]
+	pub fn new_from_tex<'p, C: GraphicsContext>(
+		surface: &mut C,
+		vertices: &'p [Vertex],
+		indices: &'p [u8],
+		tex: Texture<Dim2, NormRGBA8UI>,
+	) -> Self {
+		let tess = TessBuilder::new(surface)
+			.add_vertices(vertices)
+			.set_indices(indices)
+			.set_mode(TessMode::Triangle)
+			.build()
+			.unwrap();
+		// println!("{},{}", width, height);
+		let size = tex.size();
+		return Self {
+			vao: tess,
+			tex: tex,
+			tex_size: size,
+			scale: 1.0,
+			pos: [0, 0],
+			depth: 0.0,
+			uv_states: None,
+		};
 	}
 
 	pub fn set_pos(&mut self, new_pos: [i32; 2]) {
@@ -207,7 +202,7 @@ impl Entity {
 		}
 	}
 
-	pub fn set_state<T: ToString>(&mut self, id: T) -> Result<(), ()> {
+	pub fn set_state<S: ToString>(&mut self, id: S) -> Result<(), ()> {
 		if let Some(uv_states) = self.uv_states.clone() {
 			if let Some(res) = uv_states.get(&id.to_string()) {
 				self.update_uv(&res);
@@ -216,6 +211,7 @@ impl Entity {
 		}
 		return Err(());
 	}
+
 	pub fn update_uv(&mut self, new_uv: &[VertexUV]) {
 		let mut v_slice = self
 			.vao
@@ -224,6 +220,41 @@ impl Entity {
 		for i in 0..v_slice.len() {
 			v_slice[i].update_uv(new_uv[i])
 		}
+	}
+
+	pub fn update_text<T: ToString, C: GraphicsContext>(
+		&mut self,
+		file_loader: &mut FileLoader,
+		surface: &mut C,
+		text: &T,
+		font: &Font,
+	) -> Result<(), ()> {
+		//if let EntityKind::Text = self.kind {
+		if let Some((tex, uvs)) = tex_from_string(file_loader, surface, text.to_string(), font) {
+			let [width, height] = tex.size();
+			self.tex_size = tex.size();
+			self.tex = tex;
+			self.update(&[
+				(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
+				(
+					VertexPosition::new([width as i32, 0]),
+					VertexUV::new(uvs[1]),
+				),
+				(
+					VertexPosition::new([width as i32, height as i32]),
+					VertexUV::new(uvs[2]),
+				),
+				(
+					VertexPosition::new([0, height as i32]),
+					VertexUV::new(uvs[3]),
+				),
+			]);
+			return Ok(());
+		} else {
+			eprintln!("Error creating texture for string \"{}\"", text.to_string())
+		}
+		//}
+		Err(())
 	}
 
 	pub fn update_pos(&mut self, new_pos: &[VertexPosition]) {
@@ -247,40 +278,9 @@ impl Entity {
 		}
 	}
 
-	pub fn update_text<T: ToString, C: GraphicsContext>(
-		&mut self,
-		file_loader: &mut FileLoader,
-		surface: &mut C,
-		text: &T,
-		font: &Font,
-	) -> Result<(), ()> {
-		if let EntityKind::Text = self.kind {
-			if let Some((tex, uvs)) = tex_from_string(file_loader, surface, text.to_string(), font)
-			{
-				let [width, height] = tex.size();
-				self.tex_size = tex.size();
-				self.tex = tex;
-				self.update(&[
-					(VertexPosition::new([0, 0]), VertexUV::new(uvs[0])),
-					(
-						VertexPosition::new([width as i32, 0]),
-						VertexUV::new(uvs[1]),
-					),
-					(
-						VertexPosition::new([width as i32, height as i32]),
-						VertexUV::new(uvs[2]),
-					),
-					(
-						VertexPosition::new([0, height as i32]),
-						VertexUV::new(uvs[3]),
-					),
-				]);
-				return Ok(());
-			} else {
-				eprintln!("Error creating texture for string \"{}\"", text.to_string())
-			}
-		}
-		Err(())
+	pub fn update_tex(&mut self, tex: Texture<Dim2, NormRGBA8UI>) {
+		self.tex = tex;
+		self.tex_size = self.tex.size();
 	}
 
 	pub fn render<C: GraphicsContext>(

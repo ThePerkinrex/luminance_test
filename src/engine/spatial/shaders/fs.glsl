@@ -13,7 +13,7 @@ uniform vec3 view_pos;
 void main(){
 	vec3 lightColor=vec3(1.,1.,1.);
 	
-	float ambientStrength=.5;
+	float ambientStrength=.75;
 	vec3 ambient=ambientStrength*lightColor;
 	
 	//vec3 obj_color=ambient*obj_color_diffuse;

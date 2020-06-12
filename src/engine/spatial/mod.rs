@@ -7,6 +7,7 @@ use luminance::texture::Dim2;
 use luminance_derive::{Semantics, UniformInterface, Vertex};
 
 pub mod camera;
+pub mod depth;
 mod entity;
 pub mod obj;
 mod renderer;
@@ -45,4 +46,4 @@ pub struct Vertex {
 	normal: VertexNormal,
 }
 
-type VertexIndex = u32;
+pub type VertexIndex = u32;

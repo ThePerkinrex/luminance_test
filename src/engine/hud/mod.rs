@@ -1,14 +1,16 @@
 use luminance::pipeline::BoundTexture;
-use luminance::pixel::NormUnsigned;
+use luminance::pixel::{Floating, NormUnsigned};
 use luminance::shader::program::Uniform;
 use luminance::texture::Dim2;
 
 use luminance_derive::{Semantics, UniformInterface, Vertex};
 
+mod depth_entity;
 mod entity;
 mod renderer;
 
-pub use entity::Entity;
+pub use depth_entity::Entity as DepthEntity;
+pub use entity::{Entity, EntityKind};
 pub use renderer::Renderer;
 
 #[derive(UniformInterface)]
@@ -17,8 +19,12 @@ pub struct HudUniformInterface {
 	depth: Uniform<f32>,
 	scale: Uniform<f32>,
 	size: Uniform<[u32; 2]>,
+	#[uniform(unbound)]
 	tex: Uniform<&'static BoundTexture<'static, Dim2, NormUnsigned>>,
+	#[uniform(unbound)]
+	tex_floating: Uniform<&'static BoundTexture<'static, Dim2, Floating>>,
 	tex_size: Uniform<[u32; 2]>,
+	depth_tex: Uniform<bool>,
 }
 
 #[derive(Copy, Clone, Debug, Semantics)]

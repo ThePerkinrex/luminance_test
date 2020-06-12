@@ -13,18 +13,6 @@ use super::{Vertex, VertexIndex, VertexNormal, VertexPosition};
 
 pub type Material = mtl::Material;
 
-#[derive(Debug)]
-pub struct Obj {
-	geometries: Vec<Geometry>,
-}
-
-#[derive(Debug)]
-pub struct Geometry {
-	vertices: Vec<Vertex>,
-	indices: Vec<VertexIndex>,
-	material: Material,
-}
-
 pub trait AsArray<T> {
 	fn as_array(&self) -> T;
 }
@@ -33,6 +21,59 @@ impl AsArray<[f32; 3]> for mtl::Color {
 	fn as_array(&self) -> [f32; 3] {
 		[self.r as f32, self.g as f32, self.b as f32]
 	}
+}
+
+pub fn new_material<T: ToString>(
+	name: T,
+	specular_coefficient: f64,
+	color_ambient: mtl::Color,
+	color_diffuse: mtl::Color,
+	color_specular: mtl::Color,
+	illumination: mtl::Illumination,
+) -> Material {
+	Material {
+		name: name.to_string(),
+		specular_coefficient,
+		color_ambient,
+		color_diffuse,
+		color_specular,
+		color_emissive: None,
+		optical_density: None,
+		alpha: 1.0,
+		illumination,
+		uv_map: None,
+	}
+}
+
+pub fn color_material<T: ToString>(name: T, color: mtl::Color) -> Material {
+	new_material(
+		name,
+		300.0,
+		mtl::Color {
+			r: 1.0,
+			g: 1.0,
+			b: 1.0,
+		},
+		color,
+		mtl::Color {
+			r: 0.5,
+			g: 0.5,
+			b: 0.5,
+		},
+		mtl::Illumination::AmbientDiffuseSpecular,
+	)
+}
+
+#[derive(Debug)]
+pub struct Geometry {
+	pub vertices: Vec<Vertex>,
+	pub indices: Vec<VertexIndex>,
+	pub material: Material,
+}
+
+#[derive(Debug)]
+pub struct Obj {
+	pub geometries: Vec<Geometry>,
 }
 
 impl Obj {

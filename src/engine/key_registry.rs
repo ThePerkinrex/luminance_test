@@ -14,13 +14,13 @@ impl KeyRegistry {
 		}
 	}
 
-	pub fn event(&mut self, e: WindowEvent) {
+	pub fn event(&mut self, e: &WindowEvent) {
 		match e {
 			WindowEvent::Key(k, _, Action::Press, _) => {
 				if self.active_keys.contains(&k) {
 					// ? Key started press two times
 				} else {
-					self.active_keys.insert(k);
+					self.active_keys.insert(k.clone());
 				}
 			}
 			WindowEvent::Key(k, _, Action::Release, _) => {

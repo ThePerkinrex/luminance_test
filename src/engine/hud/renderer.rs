@@ -1,13 +1,15 @@
 use luminance::blending::{Equation, Factor};
 use luminance::context::GraphicsContext;
 use luminance::pipeline::{Pipeline, ShadingGate};
+use luminance::pixel::Depth32F;
 use luminance::render_state::RenderState;
 use luminance::shader::program::Program;
+use luminance::texture::{Dim2, Texture};
 
 use std::cmp::Ordering;
 
 use super::super::EntityRegistry;
-use super::{Entity, HudUniformInterface, VertexSemantics};
+use super::{DepthEntity, Entity, HudUniformInterface, VertexSemantics};
 
 const VS_STR: &str = include_str!("shaders/vs.glsl");
 const FS_STR: &str = include_str!("shaders/fs.glsl");
@@ -37,6 +39,8 @@ impl Renderer {
 		shd_gate: &mut ShadingGate<'_, C>,
 		pipeline: &Pipeline,
 		size: &[u32; 2],
+		d: &DepthEntity,
+		d_tex: &Texture<Dim2, Depth32F>,
 	) {
 		let mut ordered = registry.values();
 		ordered.sort_by(|x, y| {
@@ -47,7 +51,10 @@ impl Renderer {
 		});
 		shd_gate.shade(&self.program, |iface, mut rdr_gate| {
 			rdr_gate.render(&self.render_st, |mut tess_gate| {
+				iface.depth_tex.update(true);
+				d.render(&pipeline, &iface, &mut tess_gate, &size, d_tex);
 				for e in ordered {
+					iface.depth_tex.update(false);
 					e.render(&pipeline, &iface, &mut tess_gate, &size);
 				}
 			})

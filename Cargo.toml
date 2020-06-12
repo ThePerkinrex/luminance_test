@@ -37,5 +37,7 @@ hound = "3.4.0"
 
 zip = "0.5.5"
 
+rand = "0.7.3"
+
 [build-dependencies]
 zip = "0.5.5"

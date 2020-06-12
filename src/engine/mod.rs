@@ -9,6 +9,7 @@ pub mod hud;
 pub mod spatial;
 
 // Public mods
+pub mod noise;
 pub mod sound;
 pub mod text;
 pub mod texture;
@@ -20,7 +21,7 @@ mod utils;
 
 pub use entity_registry::EntityRegistry;
 pub use key_registry::KeyRegistry;
-pub use utils::{FileLoader, RgbaColor};
+pub use utils::{depth_texture_to_color, FileLoader, RgbaColor};
 
 lazy_static! {
 	pub static ref TEXTURES_PATH: PathBuf = PathBuf::from("textures");

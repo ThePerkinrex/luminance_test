@@ -9,7 +9,7 @@ use super::obj::{AsArray, Material, Obj};
 use super::SpatialUniformInterface;
 
 pub struct Entity {
-	tess: Vec<(Tess, Material)>,
+	pub tess: Vec<(Tess, Material)>,
 	pub pos: Point3<f32>,
 	pub rot_x: Rad<f32>,
 	pub rot_y: Rad<f32>,
@@ -29,7 +29,7 @@ impl Entity {
 		}
 	}
 
-	fn model_matrix(&self) -> Matrix4<f32> {
+	pub fn model_matrix(&self) -> Matrix4<f32> {
 		let s = Matrix4::from_scale(self.scale);
 		let t = Matrix4::from_translation(Point3::<f32>::origin() - self.pos);
 		let r = Matrix4::from_angle_x(self.rot_x)
